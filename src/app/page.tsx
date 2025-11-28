@@ -1,65 +1,160 @@
-import Image from "next/image";
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { FileUploader } from '@/components/FileUploader';
+import { ConfigForm } from '@/components/ConfigForm';
+import { PreviewDashboard } from '@/components/PreviewDashboard';
+import { ActionPanel } from '@/components/ActionPanel';
+import { processExcelFile, Config, ProcessedResult } from '@/lib/processor';
+import { FileText, LayoutDashboard } from 'lucide-react';
+
+const DEFAULT_CONFIG: Config = {
+  projectCode: '',
+  headers: {
+    src: 'src - source',
+    response_id: 'Response ID',
+    db_mobile: 'db.mobile',
+    complete_incentive: 'complete incentive',
+    pprid: "pprid - panel provider's respondent id",
+    ref: 'ref - referrer',
+    referral_incentive: 'referral incentive',
+    status: 'Status'
+  }
+};
 
 export default function Home() {
+  const [file, setFile] = useState<File | null>(null);
+  const [config, setConfig] = useState<Config>(DEFAULT_CONFIG);
+  const [result, setResult] = useState<ProcessedResult | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Auto-process for preview when file or config changes
+  useEffect(() => {
+    if (file) {
+      handleProcess(true);
+    } else {
+      setResult(null);
+      setError(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [file, config.projectCode]); // Don't re-process on every header keystroke, maybe? Or debounce.
+  // For simplicity, let's process on explicit action or file change.
+  // Actually, user asked for "Preview", so maybe auto-preview is good.
+  // But processing might be heavy for large files. Let's do it on file drop and have a button for "Refresh Preview" or just rely on "Process" button to do both?
+  // The plan said "Preview Dashboard".
+  // Let's make "Process" button generate the ZIP, but we try to generate stats immediately if possible.
+  // Or better: "Analyze" step first?
+  // Let's stick to: Upload -> Auto Analyze (Preview) -> User clicks Process to Download.
+
+  const handleProcess = async (isPreviewOnly: boolean = false) => {
+    if (!file) return;
+
+    setIsProcessing(true);
+    setError(null);
+
+    try {
+      // Small delay to allow UI to update
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      const res = await processExcelFile(file, config);
+      setResult(res);
+
+      if (!isPreviewOnly) {
+        // Trigger download
+        const blob = res.zipBlob;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `processed_files_${config.projectCode || 'export'}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "An error occurred while processing the file.");
+      setResult(null);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-gray-50 pb-24 md:pb-8">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-600 rounded-lg text-white">
+              <LayoutDashboard size={24} />
+            </div>
+            <h1 className="text-xl font-bold text-gray-900">Excel Top-up Splitter</h1>
+          </div>
+          <div className="text-sm text-gray-500 hidden sm:block">
+            v1.0.0
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+          {/* Left Column: Input & Config */}
+          <div className="space-y-6 lg:col-span-1">
+            <section>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FileText size={20} /> Input File
+              </h2>
+              <FileUploader
+                selectedFile={file}
+                onFileSelect={setFile}
+                onClear={() => { setFile(null); setResult(null); setError(null); }}
+              />
+            </section>
+
+            <section>
+              <ConfigForm
+                config={config}
+                onChange={setConfig}
+              />
+            </section>
+          </div>
+
+          {/* Right Column: Preview & Results */}
+          <div className="lg:col-span-2 space-y-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Preview & Results</h2>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                <strong>Error:</strong> {error}
+              </div>
+            )}
+
+            {!file && !error && (
+              <div className="bg-white border border-gray-200 rounded-xl p-12 text-center text-gray-400">
+                <p>Upload a file to see the preview.</p>
+              </div>
+            )}
+
+            {file && (
+              <PreviewDashboard
+                result={result}
+                isLoading={isProcessing && !result}
+              />
+            )}
+          </div>
         </div>
-      </main>
-    </div>
+      </div>
+
+      <ActionPanel
+        onProcess={() => handleProcess(false)}
+        onDownload={() => handleProcess(false)} // Same action for now, or separate if we store blob
+        canProcess={!!file && !error}
+        canDownload={!!result} // If result exists, we can download (re-generate or use stored)
+        isProcessing={isProcessing}
+      />
+    </main>
   );
 }
