@@ -260,16 +260,22 @@ export async function processExcelFile(file: File, config: Config): Promise<Proc
         addXlsx(addPrefixToName(projectCode, baseNameB), ['ref - referrer', 'referral incentive'], dataB);
     }
 
-    // C) pp_purespectrum / pp_paneland / pp_epitome
-    ['pp_purespectrum', 'pp_paneland', 'pp_epitome'].forEach(ksrc => {
+    // C) Export ALL src values (not just predefined ones)
+    // Get all unique src keys except the evoucher-related ones (blank, zalogroup, referral)
+    const evoucherSrcs = ['', 'zalogroup', 'referral'];
+    const allSrcKeys = Object.keys(groups).filter(k => !evoucherSrcs.includes(k));
+
+    allSrcKeys.forEach(ksrc => {
         if (groups[ksrc] && groups[ksrc].length > 0) {
             const dataC: any[][] = [];
             for (const r of groups[ksrc]) {
                 const val = trim(r[col.pprid]);
                 if (val) dataC.push([val]);
             }
-            const baseNameC = `${ksrc}-${dataC.length}`;
-            addXlsx(addPrefixToName(projectCode, baseNameC), ["pprid - panel provider's respondent id"], dataC);
+            if (dataC.length > 0) {
+                const baseNameC = `${ksrc}-${dataC.length}`;
+                addXlsx(addPrefixToName(projectCode, baseNameC), ["pprid - panel provider's respondent id"], dataC);
+            }
         }
     });
 
