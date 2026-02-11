@@ -33,6 +33,7 @@ export default function Home() {
   const [result, setResult] = useState<ProcessedResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [historyUpdateKey, setHistoryUpdateKey] = useState(0);
 
   const loadProjectData = (projectData: any) => {
     if (projectData.headers) setConfig(prev => ({ ...prev, headers: projectData.headers }));
@@ -73,6 +74,7 @@ export default function Home() {
       setConfig(DEFAULT_CONFIG);
       setVendorCpis({});
     }
+    setHistoryUpdateKey(prev => prev + 1);
   };
 
   // Get active filename for title
@@ -111,6 +113,7 @@ export default function Home() {
     }
 
     localStorage.setItem('project_history', JSON.stringify(history));
+    setHistoryUpdateKey(prev => prev + 1);
   };
 
   // Auto-process for preview when file, project code, or CPIs change
@@ -236,6 +239,7 @@ export default function Home() {
               onSelect={handleHistorySelect}
               onDelete={handleHistoryDelete}
               currentProjectCode={config.projectCode}
+              refreshKey={historyUpdateKey}
             />
 
             <section>

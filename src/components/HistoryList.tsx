@@ -13,9 +13,10 @@ interface HistoryListProps {
     onSelect: (projectCode: string) => void;
     onDelete: (projectCode: string) => void;
     currentProjectCode: string;
+    refreshKey?: number;
 }
 
-export function HistoryList({ onSelect, onDelete, currentProjectCode }: HistoryListProps) {
+export function HistoryList({ onSelect, onDelete, currentProjectCode, refreshKey = 0 }: HistoryListProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
 
@@ -32,7 +33,7 @@ export function HistoryList({ onSelect, onDelete, currentProjectCode }: HistoryL
             }))
             .sort((a, b) => b.timestamp - a.timestamp);
         setHistoryItems(items);
-    }, [currentProjectCode]);
+    }, [currentProjectCode, refreshKey]);
 
     if (historyItems.length === 0) return null;
 
