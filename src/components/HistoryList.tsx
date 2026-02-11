@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { History, FileBarChart, Clock, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import { History, FileBarChart, Clock, ChevronDown, ChevronUp, ExternalLink, Trash2 } from 'lucide-react';
 
 interface HistoryItem {
     projectCode: string;
@@ -11,10 +11,11 @@ interface HistoryItem {
 
 interface HistoryListProps {
     onSelect: (projectCode: string) => void;
+    onDelete: (projectCode: string) => void;
     currentProjectCode: string;
 }
 
-export function HistoryList({ onSelect, currentProjectCode }: HistoryListProps) {
+export function HistoryList({ onSelect, onDelete, currentProjectCode }: HistoryListProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
 
@@ -50,28 +51,42 @@ export function HistoryList({ onSelect, currentProjectCode }: HistoryListProps) 
 
             <div className="divide-y divide-gray-50">
                 {displayedItems.map((item) => (
-                    <button
-                        key={item.projectCode}
-                        onClick={() => onSelect(item.projectCode)}
-                        className={`w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors group flex items-center justify-between ${currentProjectCode === item.projectCode ? 'bg-blue-50/50 border-l-4 border-blue-500' : ''
-                            }`}
-                    >
-                        <div className="overflow-hidden">
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm font-bold text-gray-900">{item.projectCode}</span>
-                                <span className="text-[10px] text-gray-400 font-medium truncate italic max-w-[150px]">
-                                    {item.fileName}
-                                </span>
+                    <div key={item.projectCode} className="group relative flex items-center bg-white">
+                        <button
+                            onClick={() => onSelect(item.projectCode)}
+                            className={`flex-1 text-left px-4 py-3 hover:bg-blue-50 transition-colors flex items-center justify-between ${currentProjectCode === item.projectCode ? 'bg-blue-50/50 border-l-4 border-blue-500' : ''
+                                }`}
+                        >
+                            <div className="overflow-hidden">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm font-bold text-gray-900">{item.projectCode}</span>
+                                    <span className="text-[10px] text-gray-400 font-medium truncate italic max-w-[150px]">
+                                        {item.fileName}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <Clock size={10} className="text-gray-400" />
+                                    <span className="text-[10px] text-gray-400">
+                                        {new Date(item.timestamp).toLocaleString()}
+                                    </span>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-2 mt-1">
-                                <Clock size={10} className="text-gray-400" />
-                                <span className="text-[10px] text-gray-400">
-                                    {new Date(item.timestamp).toLocaleString()}
-                                </span>
-                            </div>
-                        </div>
-                        <ExternalLink size={14} className="text-gray-300 group-hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </button>
+                            <ExternalLink size={14} className="text-gray-300 group-hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </button>
+
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (confirm('Are you sure you want to delete this project?')) {
+                                    onDelete(item.projectCode);
+                                }
+                            }}
+                            className="p-3 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all border-l border-gray-50 bg-gray-50/20 hover:bg-red-50"
+                            title="Delete project"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    </div>
                 ))}
             </div>
 

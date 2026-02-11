@@ -62,6 +62,28 @@ export default function Home() {
     }
   };
 
+  const handleHistoryDelete = (projectCode: string) => {
+    const history = JSON.parse(localStorage.getItem('project_history') || '{}');
+    delete history[projectCode];
+    localStorage.setItem('project_history', JSON.stringify(history));
+
+    // If it was the current one, clear it
+    if (config.projectCode === projectCode) {
+      setResult(null);
+      setConfig(DEFAULT_CONFIG);
+      setVendorCpis({});
+    }
+  };
+
+  // Get active filename for title
+  const getActiveFileName = () => {
+    if (file) return file.name;
+    const history = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('project_history') || '{}') : {};
+    return history[config.projectCode]?.fileName || '';
+  };
+
+  const activeFileName = getActiveFileName();
+
   // Save current config to localStorage
   const saveProjectToHistory = (processedRes?: ProcessedResult) => {
     if (!config.projectCode) return;
@@ -212,6 +234,7 @@ export default function Home() {
 
             <HistoryList
               onSelect={handleHistorySelect}
+              onDelete={handleHistoryDelete}
               currentProjectCode={config.projectCode}
             />
 
@@ -225,7 +248,20 @@ export default function Home() {
 
           {/* Right Column: Preview & Results */}
           <div className="lg:col-span-2 space-y-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Preview & Results</h2>
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 border-l-4 border-blue-600 pl-3">Preview & Results</h2>
+              </div>
+              {activeFileName && (
+                <div className="flex flex-col items-end">
+                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Active Project File</span>
+                  <div className="flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-lg border border-blue-100 shadow-sm">
+                    <FileText size={16} />
+                    <span className="text-sm font-black font-mono tracking-tight">{activeFileName}</span>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
