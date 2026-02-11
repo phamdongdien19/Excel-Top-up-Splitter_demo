@@ -6,6 +6,7 @@ import { ConfigForm } from '@/components/ConfigForm';
 import { PreviewDashboard } from '@/components/PreviewDashboard';
 import { ActionPanel } from '@/components/ActionPanel';
 import { HistoryList } from '@/components/HistoryList';
+import { FileRequirementGuide } from '@/components/FileRequirementGuide';
 import { processExcelFile, Config, ProcessedResult } from '@/lib/processor';
 import { FileText, LayoutDashboard, History } from 'lucide-react';
 
@@ -226,6 +227,7 @@ export default function Home() {
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FileText size={20} /> Input File
               </h2>
+              <FileRequirementGuide />
               <FileUploader
                 selectedFile={file}
                 onFileSelect={(newFile) => {
