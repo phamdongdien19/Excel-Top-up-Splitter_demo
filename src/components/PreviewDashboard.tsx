@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart3, CheckCircle2, DollarSign, FileText, Ban, Mail, MessageSquare, PlusSquare, TrendingUp, PieChart as PieChartIcon } from 'lucide-react';
+import { BarChart3, CheckCircle2, DollarSign, FileText, Ban, Mail, MessageSquare, PlusSquare, TrendingUp, PieChart as PieChartIcon, Trophy, Crown, Medal } from 'lucide-react';
 import { ProcessedResult } from '@/lib/processor';
 import {
     PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend
@@ -79,15 +79,27 @@ export function PreviewDashboard({
 
     // Data for Charts
     const completesData = Object.entries(previewStats.countsBySrc)
-        .map(([name, value]) => ({ name, value }))
+        .map(([name, value]) => ({
+            name: (name && name.trim()) ? name : 'IFM (Internal)',
+            value,
+            percent: Math.round((value / previewStats.totalComplete) * 100)
+        }))
         .sort((a, b) => b.value - a.value);
+
+    const vendorRanking = completesData
+        .filter(d => d.name.startsWith('pp_'))
+        .slice(0, 5); // Top 5 vendors
+    const totalCostsVnd = totalVendorCostVnd + totalEvoucherVnd + totalReferralVnd + smsCost + emailCost + otherCost;
 
     const budgetData = [
         { name: 'IFM Evouchers', value: totalEvoucherVnd, fill: COST_COLORS['IFM Evouchers'] },
         { name: 'Referrers', value: totalReferralVnd, fill: COST_COLORS['Referrers'] },
         { name: 'Vendors', value: totalVendorCostVnd, fill: COST_COLORS['Vendors'] },
         { name: 'Extra Services', value: smsCost + emailCost + otherCost, fill: COST_COLORS['Extra Services'] }
-    ].filter(d => d.value > 0);
+    ].filter(d => d.value > 0).map(d => ({
+        ...d,
+        percent: Math.round((d.value / totalCostsVnd) * 100)
+    }));
 
     return (
         <div className="space-y-6">
@@ -249,11 +261,49 @@ export function PreviewDashboard({
                                     ))}
                                 </Pie>
                                 <Tooltip
+                                    formatter={(value: any, name: any, props: any) => [
+                                        `${Number(value).toLocaleString()} (${props.payload.percent}%)`,
+                                        name || 'Unknown'
+                                    ]}
                                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                                 />
-                                <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                                <Legend
+                                    verticalAlign="bottom"
+                                    height={50}
+                                    iconType="circle"
+                                    wrapperStyle={{ fontSize: '10px', paddingTop: '20px' }}
+                                />
                             </PieChart>
                         </ResponsiveContainer>
+                    </div>
+
+                    {/* Vendor Ranking List */}
+                    <div className="mt-4 space-y-2 border-t border-gray-100 pt-4">
+                        <div className="flex items-center gap-2 mb-3">
+                            <Trophy size={14} className="text-amber-500" />
+                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Top Source Ranking</span>
+                        </div>
+                        {completesData.slice(0, 3).map((item, idx) => (
+                            <div key={item.name} className="flex items-center justify-between text-xs p-2 rounded-lg bg-gray-50/50">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-5 h-5 flex items-center justify-center">
+                                        {idx === 0 && <Crown size={14} className="text-amber-500" />}
+                                        {idx === 1 && <Medal size={14} className="text-gray-400" />}
+                                        {idx === 2 && <Medal size={14} className="text-amber-700" />}
+                                    </div>
+                                    <span className="font-mono text-gray-700 truncate max-w-[120px]">{item.name}</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-16 bg-gray-200 h-1.5 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-blue-500 rounded-full"
+                                            style={{ width: `${item.percent}%` }}
+                                        ></div>
+                                    </div>
+                                    <span className="font-bold text-gray-900 w-8 text-right">{item.percent}%</span>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
@@ -280,10 +330,18 @@ export function PreviewDashboard({
                                     ))}
                                 </Pie>
                                 <Tooltip
-                                    formatter={(value: any) => `${Number(value).toLocaleString()} VND`}
+                                    formatter={(value: any, name: any, props: any) => [
+                                        `${Number(value).toLocaleString()} VND (${props.payload.percent}%)`,
+                                        name || 'Unknown'
+                                    ]}
                                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                                 />
-                                <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                                <Legend
+                                    verticalAlign="bottom"
+                                    height={50}
+                                    iconType="circle"
+                                    wrapperStyle={{ fontSize: '10px', paddingTop: '20px' }}
+                                />
                             </PieChart>
                         </ResponsiveContainer>
                     </div>
