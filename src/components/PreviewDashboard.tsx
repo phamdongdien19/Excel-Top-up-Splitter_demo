@@ -279,6 +279,25 @@ export function PreviewDashboard({
                                 </tr>
                             )}
                         </tbody>
+                        {Object.keys(previewStats.countsBySrc).length > 0 && (
+                            <tfoot className="bg-gray-50/80 border-t-2 border-gray-200">
+                                <tr>
+                                    <td className="px-6 py-4 font-black text-gray-900 uppercase tracking-wider">TOTAL</td>
+                                    <td className="px-6 py-4 text-right text-blue-700 font-black text-base">
+                                        {previewStats.totalComplete.toLocaleString()}
+                                    </td>
+                                    <td className="px-6 py-4 text-center text-gray-400">-</td>
+                                    <td className="px-6 py-4 text-right">
+                                        <div className="flex flex-col">
+                                            <span className="text-blue-800 font-black text-base">
+                                                {(totalVendorCostVnd + totalEvoucherVnd).toLocaleString()} VND
+                                            </span>
+                                            <span className="text-[10px] text-gray-400 font-normal uppercase">Sum of Est. Cost</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        )}
                     </table>
                 </div>
             </div>
