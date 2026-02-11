@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { History, FileBarChart, Clock, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 
 interface HistoryItem {
@@ -16,18 +16,22 @@ interface HistoryListProps {
 
 export function HistoryList({ onSelect, currentProjectCode }: HistoryListProps) {
     const [isExpanded, setIsExpanded] = useState(false);
+    const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
 
-    // Get history from localStorage
-    const historyMap = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('project_history') || '{}') : {};
-    const historyItems: HistoryItem[] = Object.keys(historyMap)
-        .map(code => ({
-            projectCode: code,
-            fileName: historyMap[code].fileName || 'Unknown File',
-            timestamp: historyMap[code].timestamp,
-            previewStats: historyMap[code].previewStats,
-            report: historyMap[code].report
-        }))
-        .sort((a, b) => b.timestamp - a.timestamp);
+    // Get history only after mount to avoid hydration mismatch
+    useEffect(() => {
+        const historyMap = JSON.parse(localStorage.getItem('project_history') || '{}');
+        const items: HistoryItem[] = Object.keys(historyMap)
+            .map(code => ({
+                projectCode: code,
+                fileName: historyMap[code].fileName || `Historical Data (${code})`,
+                timestamp: historyMap[code].timestamp,
+                previewStats: historyMap[code].previewStats,
+                report: historyMap[code].report
+            }))
+            .sort((a, b) => b.timestamp - a.timestamp);
+        setHistoryItems(items);
+    }, [currentProjectCode]);
 
     if (historyItems.length === 0) return null;
 

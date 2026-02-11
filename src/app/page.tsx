@@ -51,9 +51,11 @@ export default function Home() {
   };
 
   const handleHistorySelect = (projectCode: string) => {
+    console.log("Selecting history project:", projectCode); // Debug
     const history = JSON.parse(localStorage.getItem('project_history') || '{}');
     const projectData = history[projectCode];
     if (projectData) {
+      setError(null);
       setFile(null);
       setConfig(prev => ({ ...prev, projectCode }));
       loadProjectData(projectData);
@@ -228,7 +230,7 @@ export default function Home() {
               </div>
             )}
 
-            {!file && !error && (
+            {!file && !result && !error && (
               <div className="bg-white border border-gray-200 rounded-xl p-12 text-center text-gray-400">
                 <p>Upload a file to see the preview.</p>
               </div>
