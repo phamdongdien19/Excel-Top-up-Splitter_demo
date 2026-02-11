@@ -26,9 +26,51 @@ export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [config, setConfig] = useState<Config>(DEFAULT_CONFIG);
   const [vendorCpis, setVendorCpis] = useState<Record<string, number>>({});
+  const [smsCost, setSmsCost] = useState<number>(0);
+  const [emailCost, setEmailCost] = useState<number>(0);
+  const [otherCost, setOtherCost] = useState<number>(0);
   const [result, setResult] = useState<ProcessedResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Load project config from localStorage when projectCode changes
+  useEffect(() => {
+    if (config.projectCode) {
+      const history = JSON.parse(localStorage.getItem('project_history') || '{}');
+      const projectData = history[config.projectCode];
+      if (projectData) {
+        if (projectData.headers) setConfig(prev => ({ ...prev, headers: projectData.headers }));
+        if (projectData.vendorCpis) setVendorCpis(projectData.vendorCpis);
+        if (projectData.smsCost !== undefined) setSmsCost(projectData.smsCost);
+        if (projectData.emailCost !== undefined) setEmailCost(projectData.emailCost);
+        if (projectData.otherCost !== undefined) setOtherCost(projectData.otherCost);
+      }
+    }
+  }, [config.projectCode]);
+
+  // Save current config to localStorage
+  const saveProjectToHistory = () => {
+    if (!config.projectCode) return;
+
+    const history = JSON.parse(localStorage.getItem('project_history') || '{}');
+    history[config.projectCode] = {
+      headers: config.headers,
+      vendorCpis,
+      smsCost,
+      emailCost,
+      otherCost,
+      timestamp: Date.now()
+    };
+
+    // Keep only last 50 projects
+    const keys = Object.keys(history).sort((a, b) => history[b].timestamp - history[a].timestamp);
+    if (keys.length > 50) {
+      const keysToDelete = keys.slice(50);
+      keysToDelete.forEach(k => delete history[k]);
+    }
+
+    localStorage.setItem('project_history', JSON.stringify(history));
+  };
 
   // Auto-process for preview when file, project code, or CPIs change
   useEffect(() => {
@@ -39,7 +81,7 @@ export default function Home() {
       setError(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [file, config.projectCode, vendorCpis]);
+  }, [file, config.projectCode, vendorCpis, smsCost, emailCost, otherCost]);
 
   const handleCpiChange = (vendor: string, cpi: number) => {
     setVendorCpis(prev => ({
@@ -55,6 +97,8 @@ export default function Home() {
     setError(null);
 
     try {
+      saveProjectToHistory();
+
       // Create a combined config with weightings/CPIs
       const fullConfig: Config = {
         ...config,
@@ -126,7 +170,15 @@ export default function Home() {
                     }
                   }
                 }}
-                onClear={() => { setFile(null); setResult(null); setError(null); setVendorCpis({}); }}
+                onClear={() => {
+                  setFile(null);
+                  setResult(null);
+                  setError(null);
+                  setVendorCpis({});
+                  setSmsCost(0);
+                  setEmailCost(0);
+                  setOtherCost(0);
+                }}
               />
             </section>
 
@@ -160,6 +212,12 @@ export default function Home() {
                 isLoading={isProcessing && !result}
                 vendorCpis={vendorCpis}
                 onCpiChange={handleCpiChange}
+                smsCost={smsCost}
+                setSmsCost={setSmsCost}
+                emailCost={emailCost}
+                setEmailCost={setEmailCost}
+                otherCost={otherCost}
+                setOtherCost={setOtherCost}
               />
             )}
           </div>

@@ -22,7 +22,8 @@ export interface ProcessedResult {
     report: string[];
     previewStats: {
         totalComplete: number;
-        totalEvoucherSum: number;
+        totalEvoucherSum: number; // For Panel IFM / Zalo
+        totalReferralSum: number; // For Referrers
         countsBySrc: Record<string, number>;
         vendorCosts: Record<string, number>;
     };
@@ -149,8 +150,10 @@ export async function processExcelFile(file: File, config: Config): Promise<Proc
     };
 
     // Stats
+    // Stats
     let totalCompleteCount = 0;
-    let totalEvoucherSum = 0;
+    let totalPanelIncentiveSum = 0;
+    let totalReferralSum = 0;
     const countsBySrc: Record<string, number> = {};
 
     for (const row of rows) {
@@ -178,8 +181,11 @@ export async function processExcelFile(file: File, config: Config): Promise<Proc
         // Stats
         totalCompleteCount++;
         countsBySrc[currentSrc] = (countsBySrc[currentSrc] || 0) + 1;
-        if (currentSrc === '' || currentSrc === 'zalogroup' || currentSrc === 'referral') {
-            totalEvoucherSum += parseMoneyVND(row[col.complete_incentive]);
+
+        if (currentSrc === '' || currentSrc === 'zalogroup') {
+            totalPanelIncentiveSum += parseMoneyVND(row[col.complete_incentive]);
+        } else if (currentSrc === 'referral') {
+            totalReferralSum += parseMoneyVND(row[col.referral_incentive]);
         }
 
         // Grouping
@@ -388,7 +394,8 @@ export async function processExcelFile(file: File, config: Config): Promise<Proc
         report,
         previewStats: {
             totalComplete: totalCompleteCount,
-            totalEvoucherSum,
+            totalEvoucherSum: totalPanelIncentiveSum,
+            totalReferralSum: totalReferralSum,
             countsBySrc,
             vendorCosts
         }
