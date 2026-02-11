@@ -5,8 +5,9 @@ import { FileUploader } from '@/components/FileUploader';
 import { ConfigForm } from '@/components/ConfigForm';
 import { PreviewDashboard } from '@/components/PreviewDashboard';
 import { ActionPanel } from '@/components/ActionPanel';
+import { HistoryList } from '@/components/HistoryList';
 import { processExcelFile, Config, ProcessedResult } from '@/lib/processor';
-import { FileText, LayoutDashboard } from 'lucide-react';
+import { FileText, LayoutDashboard, History } from 'lucide-react';
 
 const DEFAULT_CONFIG: Config = {
   projectCode: '',
@@ -33,40 +34,56 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load project config from localStorage when projectCode changes
-  useEffect(() => {
-    if (config.projectCode) {
-      const history = JSON.parse(localStorage.getItem('project_history') || '{}');
-      const projectData = history[config.projectCode];
-      if (projectData) {
-        if (projectData.headers) setConfig(prev => ({ ...prev, headers: projectData.headers }));
-        if (projectData.vendorCpis) setVendorCpis(projectData.vendorCpis);
-        if (projectData.smsCost !== undefined) setSmsCost(projectData.smsCost);
-        if (projectData.emailCost !== undefined) setEmailCost(projectData.emailCost);
-        if (projectData.otherCost !== undefined) setOtherCost(projectData.otherCost);
-      }
+  const loadProjectData = (projectData: any) => {
+    if (projectData.headers) setConfig(prev => ({ ...prev, headers: projectData.headers }));
+    if (projectData.vendorCpis) setVendorCpis(projectData.vendorCpis);
+    if (projectData.smsCost !== undefined) setSmsCost(projectData.smsCost);
+    if (projectData.emailCost !== undefined) setEmailCost(projectData.emailCost);
+    if (projectData.otherCost !== undefined) setOtherCost(projectData.otherCost);
+
+    if (projectData.previewStats) {
+      setResult({
+        zipBlob: new Blob(), // Placeholder
+        report: projectData.report || [],
+        previewStats: projectData.previewStats
+      });
     }
-  }, [config.projectCode]);
+  };
+
+  const handleHistorySelect = (projectCode: string) => {
+    const history = JSON.parse(localStorage.getItem('project_history') || '{}');
+    const projectData = history[projectCode];
+    if (projectData) {
+      setFile(null);
+      setConfig(prev => ({ ...prev, projectCode }));
+      loadProjectData(projectData);
+    }
+  };
 
   // Save current config to localStorage
-  const saveProjectToHistory = () => {
+  const saveProjectToHistory = (processedRes?: ProcessedResult) => {
     if (!config.projectCode) return;
 
     const history = JSON.parse(localStorage.getItem('project_history') || '{}');
+    const existing = history[config.projectCode] || {};
+
     history[config.projectCode] = {
+      ...existing,
       headers: config.headers,
       vendorCpis,
       smsCost,
       emailCost,
       otherCost,
+      fileName: file ? file.name : (existing.fileName || 'Unknown'),
+      previewStats: processedRes ? processedRes.previewStats : existing.previewStats,
+      report: processedRes ? processedRes.report : existing.report,
       timestamp: Date.now()
     };
 
     // Keep only last 50 projects
     const keys = Object.keys(history).sort((a, b) => history[b].timestamp - history[a].timestamp);
     if (keys.length > 50) {
-      const keysToDelete = keys.slice(50);
-      keysToDelete.forEach(k => delete history[k]);
+      keys.slice(50).forEach(k => delete history[k]);
     }
 
     localStorage.setItem('project_history', JSON.stringify(history));
@@ -76,9 +93,9 @@ export default function Home() {
   useEffect(() => {
     if (file) {
       handleProcess(true);
-    } else {
-      setResult(null);
-      setError(null);
+    } else if (result) {
+      // If we have a result (loaded from history) but no file, we still save metadata if costs change
+      saveProjectToHistory();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [file, config.projectCode, vendorCpis, smsCost, emailCost, otherCost]);
@@ -91,13 +108,18 @@ export default function Home() {
   };
 
   const handleProcess = async (isPreviewOnly: boolean = false) => {
-    if (!file) return;
+    if (!file) {
+      if (!isPreviewOnly && result) {
+        setError("The original Excel file is needed to generate the export. Please re-upload the file.");
+      }
+      return;
+    };
 
     setIsProcessing(true);
     setError(null);
 
     try {
-      saveProjectToHistory();
+      // saveProjectToHistory(); // Removed redundant call
 
       // Create a combined config with weightings/CPIs
       const fullConfig: Config = {
@@ -110,6 +132,7 @@ export default function Home() {
 
       const res = await processExcelFile(file, fullConfig);
       setResult(res);
+      saveProjectToHistory(res);
 
       if (!isPreviewOnly) {
         // Trigger download
@@ -182,6 +205,11 @@ export default function Home() {
               />
             </section>
 
+            <HistoryList
+              onSelect={handleHistorySelect}
+              currentProjectCode={config.projectCode}
+            />
+
             <section>
               <ConfigForm
                 config={config}
@@ -206,7 +234,7 @@ export default function Home() {
               </div>
             )}
 
-            {file && (
+            {result && (
               <PreviewDashboard
                 result={result}
                 isLoading={isProcessing && !result}
