@@ -42,8 +42,14 @@ export function PreviewDashboard({
 
     const { previewStats } = result;
 
-    // Calculate Costs
-    const totalVendorCostUsd = Object.values(previewStats.vendorCosts).reduce((a, b) => a + b, 0);
+    // Calculate Costs Dynamically (so it's reactive when viewing history)
+    const totalVendorCostUsd = Object.entries(previewStats.countsBySrc).reduce((sum, [src, count]) => {
+        if (src.startsWith('pp_')) {
+            return sum + (count * (vendorCpis[src] || 0));
+        }
+        return sum;
+    }, 0);
+
     const totalVendorCostVnd = totalVendorCostUsd * EXCHANGE_RATE;
     const totalEvoucherVnd = previewStats.totalEvoucherSum;
     const totalReferralVnd = previewStats.totalReferralSum;
@@ -206,7 +212,8 @@ export function PreviewDashboard({
                         <tbody className="divide-y divide-gray-100">
                             {Object.entries(previewStats.countsBySrc).sort().map(([src, count]) => {
                                 const isPPVendor = src.startsWith('pp_');
-                                const costUsd = previewStats.vendorCosts[src] || 0;
+                                const cpi = vendorCpis[src] || 0;
+                                const costUsd = isPPVendor ? count * cpi : 0;
                                 const costVndPerSrc = isPPVendor ? (costUsd * EXCHANGE_RATE) : 0;
 
                                 // Calculate average incentive for internal sources
@@ -290,7 +297,7 @@ export function PreviewDashboard({
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex flex-col">
                                             <span className="text-blue-800 font-black text-base">
-                                                {(totalVendorCostVnd + totalEvoucherVnd).toLocaleString()} VND
+                                                {(totalVendorCostVnd + totalEvoucherVnd + totalReferralVnd).toLocaleString()} VND
                                             </span>
                                             <span className="text-[10px] text-gray-400 font-normal uppercase">Sum of Est. Cost</span>
                                         </div>

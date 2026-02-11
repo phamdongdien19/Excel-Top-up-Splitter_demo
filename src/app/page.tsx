@@ -187,11 +187,14 @@ export default function Home() {
                 selectedFile={file}
                 onFileSelect={(newFile) => {
                   setFile(newFile);
-                  if (newFile && !config.projectCode) {
+                  setResult(null); // Clear previous result when new file is added
+                  if (newFile) {
                     // Extract leading digits (e.g., 250550 from 250550_Entre_Topup.xlsx)
                     const match = newFile.name.match(/^(\d+)/);
                     if (match) {
-                      setConfig(prev => ({ ...prev, projectCode: match[1] }));
+                      const detectedCode = match[1];
+                      // Always update prefix to avoid mismatching history
+                      setConfig(prev => ({ ...prev, projectCode: detectedCode }));
                     }
                   }
                 }}
