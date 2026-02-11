@@ -285,18 +285,34 @@ export function PreviewDashboard({
 
             {/* Generated Files List (Preview) */}
             {result.report.length > 0 && (
-                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                    <h4 className="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
-                        <FileText size={18} className="text-blue-500" /> Export Package Contents:
+                <div className="bg-gray-900 rounded-xl p-6 shadow-xl overflow-hidden border border-gray-800">
+                    <h4 className="text-sm font-bold text-gray-400 mb-4 flex items-center gap-2 uppercase tracking-widest">
+                        <FileText size={16} className="text-blue-400" /> Package Contents ({result.report.length})
                     </h4>
-                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
-                        {result.report.map((line, i) => (
-                            <li key={i} className="text-xs font-mono text-gray-500 flex items-center gap-2 border-b border-gray-100 pb-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-blue-300"></span>
-                                {line}
-                            </li>
-                        ))}
-                    </ul>
+                    <div className="space-y-2">
+                        {result.report.map((line, i) => {
+                            // Extract row count if exists: filename.xlsx (N rows)
+                            const match = line.match(/(.*)\s\((.*)\)/);
+                            const filename = match ? match[1] : line;
+                            const details = match ? match[2] : '';
+
+                            return (
+                                <div key={i} className="group flex items-center justify-between bg-gray-800/50 hover:bg-gray-800 p-3 rounded-lg border border-gray-700/50 transition-all">
+                                    <div className="flex items-center gap-3 overflow-hidden">
+                                        <div className="p-1.5 bg-blue-500/10 rounded text-blue-400">
+                                            <FileText size={14} />
+                                        </div>
+                                        <span className="text-xs font-mono text-gray-300 truncate">{filename}</span>
+                                    </div>
+                                    {details && (
+                                        <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-bold whitespace-nowrap">
+                                            {details}
+                                        </span>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
             )}
         </div>

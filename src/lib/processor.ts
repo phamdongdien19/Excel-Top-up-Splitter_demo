@@ -212,7 +212,7 @@ export async function processExcelFile(file: File, config: Config): Promise<Proc
         XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
         const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
         zip.file(name + '.xlsx', wbout);
-        report.push(`Generated: ${name}.xlsx (${dataRows.length} rows)`);
+        report.push(`${name}.xlsx (${dataRows.length} rows)`);
     };
 
     // A) complete-topup-evoucher_gotit
@@ -314,7 +314,7 @@ export async function processExcelFile(file: File, config: Config): Promise<Proc
 
         const nameF = addPrefixToName(projectCode, baseNameF) + '.txt';
         zip.file(nameF, String(cntF));
-        report.push(`Generated: ${nameF}`);
+        report.push(nameF);
     }
 
     // E) Fulcrum Disqualified
@@ -380,7 +380,7 @@ export async function processExcelFile(file: File, config: Config): Promise<Proc
         ).join('\n');
 
         zip.file(filenameMerged, '\uFEFF' + csvContent);
-        report.push(`Generated: ${filenameMerged}`);
+        report.push(filenameMerged);
     }
 
     // Calculate vendor costs for pp_ vendors
