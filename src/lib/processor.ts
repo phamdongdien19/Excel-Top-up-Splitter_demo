@@ -4,6 +4,7 @@ import JSZip from 'jszip';
 // --- Types ---
 export interface Config {
     projectCode: string;
+    vendorCpis?: Record<string, number>;
     headers: {
         src: string;
         response_id: string;
@@ -23,6 +24,7 @@ export interface ProcessedResult {
         totalComplete: number;
         totalEvoucherSum: number;
         countsBySrc: Record<string, number>;
+        vendorCosts: Record<string, number>;
     };
 }
 
@@ -273,7 +275,14 @@ export async function processExcelFile(file: File, config: Config): Promise<Proc
                 if (val) dataC.push([val]);
             }
             if (dataC.length > 0) {
-                const baseNameC = `${ksrc}-${dataC.length}`;
+                let baseNameC = `${ksrc}-${dataC.length}`;
+
+                // Add CPI to filename if it's a pp_ vendor and CPI is provided
+                if (ksrc.startsWith('pp_') && config.vendorCpis?.[ksrc]) {
+                    const cpi = config.vendorCpis[ksrc];
+                    baseNameC += `-cpi${cpi}`;
+                }
+
                 addXlsx(addPrefixToName(projectCode, baseNameC), ["pprid - panel provider's respondent id"], dataC);
             }
         }
@@ -282,7 +291,14 @@ export async function processExcelFile(file: File, config: Config): Promise<Proc
     // D) pp_fulcrum (txt)
     if (groups['pp_fulcrum'] && groups['pp_fulcrum'].length > 0) {
         const cntF = groups['pp_fulcrum'].length;
-        const baseNameF = `fulcrum_${cntF}`;
+        let baseNameF = `fulcrum_${cntF}`;
+
+        // Add CPI to filename if CPI is provided
+        if (config.vendorCpis?.['pp_fulcrum']) {
+            const cpi = config.vendorCpis['pp_fulcrum'];
+            baseNameF += `-cpi${cpi}`;
+        }
+
         const nameF = addPrefixToName(projectCode, baseNameF) + '.txt';
         zip.file(nameF, String(cntF));
         report.push(`Generated: ${nameF}`);
@@ -354,6 +370,17 @@ export async function processExcelFile(file: File, config: Config): Promise<Proc
         report.push(`Generated: ${filenameMerged}`);
     }
 
+    // Calculate vendor costs for pp_ vendors
+    const vendorCosts: Record<string, number> = {};
+    if (config.vendorCpis) {
+        Object.entries(config.vendorCpis).forEach(([vendor, cpi]) => {
+            const count = countsBySrc[vendor] || 0;
+            if (count > 0 && cpi > 0) {
+                vendorCosts[vendor] = count * cpi;
+            }
+        });
+    }
+
     const zipBlob = await zip.generateAsync({ type: 'blob' });
 
     return {
@@ -362,7 +389,8 @@ export async function processExcelFile(file: File, config: Config): Promise<Proc
         previewStats: {
             totalComplete: totalCompleteCount,
             totalEvoucherSum,
-            countsBySrc
+            countsBySrc,
+            vendorCosts
         }
     };
 }

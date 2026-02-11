@@ -25,11 +25,12 @@ const DEFAULT_CONFIG: Config = {
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [config, setConfig] = useState<Config>(DEFAULT_CONFIG);
+  const [vendorCpis, setVendorCpis] = useState<Record<string, number>>({});
   const [result, setResult] = useState<ProcessedResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Auto-process for preview when file or config changes
+  // Auto-process for preview when file, project code, or CPIs change
   useEffect(() => {
     if (file) {
       handleProcess(true);
@@ -38,14 +39,14 @@ export default function Home() {
       setError(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [file, config.projectCode]); // Don't re-process on every header keystroke, maybe? Or debounce.
-  // For simplicity, let's process on explicit action or file change.
-  // Actually, user asked for "Preview", so maybe auto-preview is good.
-  // But processing might be heavy for large files. Let's do it on file drop and have a button for "Refresh Preview" or just rely on "Process" button to do both?
-  // The plan said "Preview Dashboard".
-  // Let's make "Process" button generate the ZIP, but we try to generate stats immediately if possible.
-  // Or better: "Analyze" step first?
-  // Let's stick to: Upload -> Auto Analyze (Preview) -> User clicks Process to Download.
+  }, [file, config.projectCode, vendorCpis]);
+
+  const handleCpiChange = (vendor: string, cpi: number) => {
+    setVendorCpis(prev => ({
+      ...prev,
+      [vendor]: cpi
+    }));
+  };
 
   const handleProcess = async (isPreviewOnly: boolean = false) => {
     if (!file) return;
@@ -54,10 +55,16 @@ export default function Home() {
     setError(null);
 
     try {
+      // Create a combined config with weightings/CPIs
+      const fullConfig: Config = {
+        ...config,
+        vendorCpis
+      };
+
       // Small delay to allow UI to update
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      const res = await processExcelFile(file, config);
+      const res = await processExcelFile(file, fullConfig);
       setResult(res);
 
       if (!isPreviewOnly) {
@@ -109,8 +116,17 @@ export default function Home() {
               </h2>
               <FileUploader
                 selectedFile={file}
-                onFileSelect={setFile}
-                onClear={() => { setFile(null); setResult(null); setError(null); }}
+                onFileSelect={(newFile) => {
+                  setFile(newFile);
+                  if (newFile && !config.projectCode) {
+                    // Extract leading digits (e.g., 250550 from 250550_Entre_Topup.xlsx)
+                    const match = newFile.name.match(/^(\d+)/);
+                    if (match) {
+                      setConfig(prev => ({ ...prev, projectCode: match[1] }));
+                    }
+                  }
+                }}
+                onClear={() => { setFile(null); setResult(null); setError(null); setVendorCpis({}); }}
               />
             </section>
 
@@ -142,6 +158,8 @@ export default function Home() {
               <PreviewDashboard
                 result={result}
                 isLoading={isProcessing && !result}
+                vendorCpis={vendorCpis}
+                onCpiChange={handleCpiChange}
               />
             )}
           </div>
