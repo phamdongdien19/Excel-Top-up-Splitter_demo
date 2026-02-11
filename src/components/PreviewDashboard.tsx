@@ -1,6 +1,27 @@
 import React from 'react';
-import { BarChart3, CheckCircle2, DollarSign, FileText, Ban, Mail, MessageSquare, PlusSquare, TrendingUp } from 'lucide-react';
+import { BarChart3, CheckCircle2, DollarSign, FileText, Ban, Mail, MessageSquare, PlusSquare, TrendingUp, PieChart as PieChartIcon } from 'lucide-react';
 import { ProcessedResult } from '@/lib/processor';
+import {
+    PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend
+} from 'recharts';
+
+const COLORS = [
+    '#3b82f6', // blue-500
+    '#10b981', // emerald-500
+    '#f59e0b', // amber-500
+    '#ef4444', // red-500
+    '#8b5cf6', // violet-500
+    '#ec4899', // pink-500
+    '#06b6d4', // cyan-500
+    '#f97316', // orange-500
+];
+
+const COST_COLORS: Record<string, string> = {
+    'IFM Evouchers': '#10b981',
+    'Referrers': '#3b82f6',
+    'Vendors': '#8b5cf6',
+    'Extra Services': '#f59e0b'
+};
 
 interface PreviewDashboardProps {
     result: ProcessedResult | null;
@@ -55,6 +76,18 @@ export function PreviewDashboard({
     const totalReferralVnd = previewStats.totalReferralSum;
 
     const grandTotalVnd = totalVendorCostVnd + totalEvoucherVnd + totalReferralVnd + smsCost + emailCost + otherCost;
+
+    // Data for Charts
+    const completesData = Object.entries(previewStats.countsBySrc)
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value);
+
+    const budgetData = [
+        { name: 'IFM Evouchers', value: totalEvoucherVnd, fill: COST_COLORS['IFM Evouchers'] },
+        { name: 'Referrers', value: totalReferralVnd, fill: COST_COLORS['Referrers'] },
+        { name: 'Vendors', value: totalVendorCostVnd, fill: COST_COLORS['Vendors'] },
+        { name: 'Extra Services', value: smsCost + emailCost + otherCost, fill: COST_COLORS['Extra Services'] }
+    ].filter(d => d.value > 0);
 
     return (
         <div className="space-y-6">
@@ -187,6 +220,72 @@ export function PreviewDashboard({
                                 </p>
                             )}
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Visual Analytics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Chart 1: Completes Distribution */}
+                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-6">
+                        <TrendingUp size={20} className="text-blue-500" />
+                        <h3 className="font-bold text-gray-700 uppercase text-xs tracking-wider">Completes Distribution</h3>
+                    </div>
+                    <div className="h-[300px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={completesData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={80}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                >
+                                    {completesData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip
+                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                                />
+                                <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                {/* Chart 2: Budget Allocation */}
+                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-6">
+                        <PieChartIcon size={20} className="text-emerald-500" />
+                        <h3 className="font-bold text-gray-700 uppercase text-xs tracking-wider">Budget Allocation (VND)</h3>
+                    </div>
+                    <div className="h-[300px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={budgetData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={80}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                >
+                                    {budgetData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                                    ))}
+                                </Pie>
+                                <Tooltip
+                                    formatter={(value: any) => `${Number(value).toLocaleString()} VND`}
+                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                                />
+                                <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                            </PieChart>
+                        </ResponsiveContainer>
                     </div>
                 </div>
             </div>

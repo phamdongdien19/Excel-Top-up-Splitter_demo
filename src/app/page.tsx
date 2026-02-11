@@ -9,6 +9,24 @@ import { HistoryList } from '@/components/HistoryList';
 import { processExcelFile, Config, ProcessedResult } from '@/lib/processor';
 import { FileText, LayoutDashboard, History } from 'lucide-react';
 
+const COLORS = [
+  '#3b82f6', // blue-500
+  '#10b981', // emerald-500
+  '#f59e0b', // amber-500
+  '#ef4444', // red-500
+  '#8b5cf6', // violet-500
+  '#ec4899', // pink-500
+  '#06b6d4', // cyan-500
+  '#f97316', // orange-500
+];
+
+const COST_COLORS = {
+  'IFM Evouchers': '#10b981',
+  'Referrers': '#3b82f6',
+  'Vendors': '#8b5cf6',
+  'Other Services': '#f59e0b'
+};
+
 const DEFAULT_CONFIG: Config = {
   projectCode: '',
   headers: {
