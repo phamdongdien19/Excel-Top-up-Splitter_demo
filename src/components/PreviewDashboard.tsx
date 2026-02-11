@@ -170,9 +170,16 @@ export function PreviewDashboard({
                             <p className="text-gray-500 text-sm">Preliminary Total Cost Estimate</p>
                             <p className="text-xs text-gray-400">Including evouchers, referrals, and external vendors</p>
                         </div>
-                        <div className="bg-blue-50 px-8 py-4 rounded-2xl border border-blue-100 flex items-center gap-4">
-                            <span className="text-blue-600 font-bold text-xl">TOTAL:</span>
-                            <span className="text-4xl font-black text-blue-800">{grandTotalVnd.toLocaleString()} VND</span>
+                        <div className="bg-blue-50 px-8 py-4 rounded-2xl border border-blue-100 flex flex-col items-end">
+                            <div className="flex items-center gap-4">
+                                <span className="text-blue-600 font-bold text-xl">TOTAL:</span>
+                                <span className="text-4xl font-black text-blue-800">{grandTotalVnd.toLocaleString()} VND</span>
+                            </div>
+                            {Object.entries(previewStats.countsBySrc).some(([src, count]) => src.startsWith('pp_') && count > 0 && !vendorCpis[src]) && (
+                                <p className="text-[10px] text-red-500 font-bold mt-1 animate-pulse">
+                                    ⚠️ Some vendors are missing CPI values!
+                                </p>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -202,6 +209,10 @@ export function PreviewDashboard({
                                 const costUsd = previewStats.vendorCosts[src] || 0;
                                 const costVndPerSrc = isPPVendor ? (costUsd * EXCHANGE_RATE) : 0;
 
+                                // Calculate average incentive for internal sources
+                                const totalIncentive = previewStats.incentiveSumBySrc[src] || 0;
+                                const avgIncentive = count > 0 ? Math.round(totalIncentive / count) : 0;
+
                                 return (
                                     <tr key={src} className={`${!isPPVendor ? 'bg-amber-50/30' : 'hover:bg-gray-50'} transition-colors`}>
                                         <td className="px-6 py-4 font-medium text-gray-900 max-w-[200px] truncate">
@@ -222,22 +233,25 @@ export function PreviewDashboard({
                                         <td className="px-6 py-4 text-right text-gray-700 font-semibold">{count.toLocaleString()}</td>
                                         <td className="px-6 py-4 text-center">
                                             {isPPVendor ? (
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <span className="text-gray-400 text-xs">$</span>
-                                                    <input
-                                                        type="number"
-                                                        min="0"
-                                                        step="0.01"
-                                                        value={vendorCpis[src] || ''}
-                                                        onChange={(e) => onCpiChange(src, parseFloat(e.target.value) || 0)}
-                                                        placeholder="0.00"
-                                                        className="w-20 px-2 py-1 text-right border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-bold text-gray-950"
-                                                    />
+                                                <div className="flex flex-col items-center gap-1">
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <span className="text-gray-400 text-xs">$</span>
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            step="0.01"
+                                                            value={vendorCpis[src] || ''}
+                                                            onChange={(e) => onCpiChange(src, parseFloat(e.target.value) || 0)}
+                                                            placeholder="0.00"
+                                                            className={`w-20 px-2 py-1 text-right border ${!vendorCpis[src] && count > 0 ? 'border-red-300 bg-red-50' : 'border-gray-300'} rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-bold text-gray-950`}
+                                                        />
+                                                    </div>
+                                                    {!vendorCpis[src] && count > 0 && <span className="text-[9px] text-red-500 font-bold uppercase">Missing CPI</span>}
                                                 </div>
                                             ) : (
-                                                <div className="flex flex-col items-center text-amber-600/50">
-                                                    <Ban size={16} />
-                                                    <span className="text-[10px] uppercase font-bold mt-1">Calculated</span>
+                                                <div className="flex flex-col items-center text-amber-600">
+                                                    <span className="font-bold text-xs">{avgIncentive.toLocaleString()} VND</span>
+                                                    <span className="text-[9px] uppercase font-bold opacity-70">Avg. Incentive</span>
                                                 </div>
                                             )}
                                         </td>
@@ -248,7 +262,10 @@ export function PreviewDashboard({
                                                     <span className="text-[10px] text-gray-400 font-normal">≈ {costVndPerSrc.toLocaleString()} VND</span>
                                                 </div>
                                             ) : (
-                                                <span className="text-amber-700 italic text-xs">Based on incentive</span>
+                                                <div className="flex flex-col">
+                                                    <span className="text-amber-700 text-xs font-bold">{totalIncentive.toLocaleString()} VND</span>
+                                                    <span className="text-[9px] text-amber-600/60 uppercase">Total Survey Pay</span>
+                                                </div>
                                             )}
                                         </td>
                                     </tr>

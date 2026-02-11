@@ -25,6 +25,7 @@ export interface ProcessedResult {
         totalEvoucherSum: number; // For Panel IFM / Zalo
         totalReferralSum: number; // For Referrers
         countsBySrc: Record<string, number>;
+        incentiveSumBySrc: Record<string, number>; // Total survey incentive per source
         vendorCosts: Record<string, number>;
     };
 }
@@ -155,6 +156,7 @@ export async function processExcelFile(file: File, config: Config): Promise<Proc
     let totalPanelIncentiveSum = 0;
     let totalReferralSum = 0;
     const countsBySrc: Record<string, number> = {};
+    const incentiveSumBySrc: Record<string, number> = {};
 
     for (const row of rows) {
         // Skip empty rows
@@ -182,9 +184,14 @@ export async function processExcelFile(file: File, config: Config): Promise<Proc
         totalCompleteCount++;
         countsBySrc[currentSrc] = (countsBySrc[currentSrc] || 0) + 1;
 
-        if (currentSrc === '' || currentSrc === 'zalogroup') {
-            totalPanelIncentiveSum += parseMoneyVND(row[col.complete_incentive]);
-        } else if (currentSrc === 'referral') {
+        const surveyIncentive = parseMoneyVND(row[col.complete_incentive]);
+        incentiveSumBySrc[currentSrc] = (incentiveSumBySrc[currentSrc] || 0) + surveyIncentive;
+
+        if (currentSrc === '' || currentSrc === 'zalogroup' || currentSrc === 'referral') {
+            totalPanelIncentiveSum += surveyIncentive;
+        }
+
+        if (currentSrc === 'referral') {
             totalReferralSum += parseMoneyVND(row[col.referral_incentive]);
         }
 
@@ -397,6 +404,7 @@ export async function processExcelFile(file: File, config: Config): Promise<Proc
             totalEvoucherSum: totalPanelIncentiveSum,
             totalReferralSum: totalReferralSum,
             countsBySrc,
+            incentiveSumBySrc,
             vendorCosts
         }
     };
