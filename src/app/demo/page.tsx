@@ -102,8 +102,8 @@ export default function DemoPage() {
                         <div className="space-y-2 text-center md:text-left">
                             <h2 className="text-2xl font-black tracking-tight">Showcase Dashboard</h2>
                             <p className="text-indigo-100 text-sm max-w-xl">
-                                Đây là trang hiển thị dữ liệu mẫu để nhà tuyển dụng có thể trải nghiệm trực tiếp các tính năng báo cáo,
-                                biểu đồ và công cụ tính toán chi phí mà không cần upload file Excel thật.
+                                This page displays sample data so recruiters can experience live reporting,
+                                charting, and cost calculation features without uploading an actual Excel file.
                             </p>
                         </div>
                         <div className="flex gap-3">
@@ -112,7 +112,7 @@ export default function DemoPage() {
                                 className="px-6 py-3 bg-white text-indigo-700 font-bold rounded-xl shadow-sm hover:bg-indigo-50 transition-all flex items-center gap-2 text-sm"
                             >
                                 <ArrowLeft size={16} />
-                                Về trang chủ
+                                Back to Home
                             </Link>
                             <a
                                 href="https://github.com/phamdongdien19/Excel-Top-up-Splitter_v1"
@@ -121,7 +121,7 @@ export default function DemoPage() {
                                 className="px-6 py-3 bg-indigo-500/30 backdrop-blur-md border border-indigo-400 text-white font-bold rounded-xl hover:bg-indigo-500/40 transition-all flex items-center gap-2 text-sm"
                             >
                                 <ExternalLink size={16} />
-                                Xem Source Code
+                                View Source Code
                             </a>
                         </div>
                     </div>
@@ -158,8 +158,8 @@ export default function DemoPage() {
             </div>
 
             <ActionPanel
-                onProcess={() => alert('Chế độ Demo: Tính năng xuất file bị vô hiệu hóa.')}
-                onDownload={() => alert('Chế độ Demo: Tính năng tải xuống bị vô hiệu hóa.')}
+                onProcess={() => alert('Demo Mode: File processing is disabled.')}
+                onDownload={() => alert('Demo Mode: Download feature is disabled.')}
                 canProcess={false}
                 canDownload={true}
                 isProcessing={false}

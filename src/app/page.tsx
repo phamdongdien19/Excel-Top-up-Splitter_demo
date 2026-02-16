@@ -204,19 +204,23 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-50 pb-24 md:pb-8">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-600 rounded-lg text-white">
-              <LayoutDashboard size={24} />
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 bg-blue-600 rounded text-white transform hover:rotate-6 transition-transform">
+              <LayoutDashboard size={18} />
             </div>
-            <h1 className="text-xl font-bold text-gray-900">Excel Top-up Splitter</h1>
+            <h1 className="text-sm font-bold text-gray-900 tracking-tight">Excel Top-up Splitter</h1>
           </div>
-          <div className="text-sm text-gray-500 hidden sm:block">
-            v1.0.0
+          <div className="flex items-center gap-4">
+            <div className="text-[10px] font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded border border-gray-100 uppercase tracking-widest hidden sm:block">
+              v1.0.0
+            </div>
           </div>
         </div>
       </header>
+
+
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

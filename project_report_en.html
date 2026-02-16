@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Report - Excel Top-up Splitter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                background-color: white;
+            }
+
+            .print-shadow {
+                box-shadow: none !important;
+                border: 1px solid #e5e7eb;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto bg-white shadow-2xl rounded-3xl overflow-hidden print-shadow">
+        <!-- Header Section -->
+        <div class="bg-indigo-700 px-8 py-10 text-white relative">
+            <div class="relative z-10">
+                <div class="flex items-center gap-3 mb-4">
+                    <span
+                        class="px-3 py-1 bg-indigo-500 rounded-full text-[10px] font-bold uppercase tracking-widest bg-opacity-30 border border-indigo-400">Case
+                        Study</span>
+                    <span class="text-indigo-200 text-sm">Automated Logistics & Data Analysis</span>
+                </div>
+                <h1 class="text-4xl font-extrabold tracking-tight mb-2">Excel Top-up Splitter & Dashboard</h1>
+                <p class="text-indigo-100 text-lg font-medium opacity-90 italic">Data Logistics Optimization &
+                    Automation</p>
+            </div>
+
+            <!-- Abstract background -->
+            <div
+                class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl">
+            </div>
+        </div>
+
+        <!-- Meta Info -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 px-8 py-6 bg-indigo-50 border-b border-indigo-100">
+            <div>
+                <p class="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">Role</p>
+                <p class="text-sm font-bold text-indigo-900">Lead Developer</p>
+            </div>
+            <div>
+                <p class="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">Timeline</p>
+                <p class="text-sm font-bold text-indigo-900">2026 (Version 1.1)</p>
+            </div>
+            <div class="col-span-2">
+                <p class="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">Github Repo</p>
+                <p class="text-sm font-bold text-indigo-900 truncate tracking-tight">
+                    phamdongdien19/Excel-Top-up-Splitter_demo</p>
+            </div>
+        </div>
+
+        <div class="p-8 space-y-10">
+            <!-- Summary -->
+            <section>
+                <h2 class="text-xl font-bold text-indigo-900 mb-4 flex items-center gap-2">
+                    <span
+                        class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">01</span>
+                    Executive Summary
+                </h2>
+                <div class="bg-gray-50 p-5 rounded-2xl border border-gray-100 leading-relaxed text-gray-700">
+                    Developed a high-performance web application designed to automate logistics processes within the
+                    Market Research industry. The tool addresses the challenge of processing thousands of survey
+                    response rows (Top-up data) for reward distribution (e-vouchers) and managing costs for sample
+                    provider partners (Vendors).
+                </div>
+            </section>
+
+            <!-- Problem & Solution -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <section>
+                    <h2 class="text-xl font-bold text-red-700 mb-4 flex items-center gap-2">
+                        <span
+                            class="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center text-sm">02</span>
+                        The Problem
+                    </h2>
+                    <ul class="space-y-3 text-gray-600">
+                        <li class="flex gap-3 text-sm">
+                            <span class="text-red-500 font-bold">•</span>
+                            <span><strong>Time-Consuming:</strong> Staff spent hours filtering and splitting Excel files
+                                for each project.</span>
+                        </li>
+                        <li class="flex gap-3 text-sm">
+                            <span class="text-red-500 font-bold">•</span>
+                            <span><strong>Risk of Errors:</strong> Manual copy-pasting prone to errors in incentive
+                                amounts or recipient information.</span>
+                        </li>
+                        <li class="flex gap-3 text-sm">
+                            <span class="text-red-500 font-bold">•</span>
+                            <span><strong>Lack of Transparency:</strong> Difficulties in tracking actual vs. projected
+                                budgets, especially with multiple international vendors.</span>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2 class="text-xl font-bold text-emerald-700 mb-4 flex items-center gap-2">
+                        <span
+                            class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm">03</span>
+                        The Solution
+                    </h2>
+                    <ul class="space-y-3 text-gray-600">
+                        <li class="flex gap-3 text-sm">
+                            <span class="text-emerald-500 font-bold">•</span>
+                            <span><strong>Automated Splitting:</strong> Automatically splits files by Vendor/Referrer
+                                using drag-and-drop.</span>
+                        </li>
+                        <li class="flex gap-3 text-sm">
+                            <span class="text-emerald-500 font-bold">•</span>
+                            <span><strong>Real-time Cost Engine:</strong> Intelligent cost calculation supporting
+                                USD/VND and service fees.</span>
+                        </li>
+                        <li class="flex gap-3 text-sm">
+                            <span class="text-emerald-500 font-bold">•</span>
+                            <span><strong>Budget Forecasting:</strong> Real-time cumulative cost estimation for
+                                optimized sample allocation.</span>
+                        </li>
+                    </ul>
+                </section>
+            </div>
+
+            <!-- Tech Stack -->
+            <section>
+                <h2 class="text-xl font-bold text-indigo-900 mb-6 flex items-center gap-2">
+                    <span
+                        class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">04</span>
+                    Technical Excellence
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100">
+                        <h4 class="font-bold text-indigo-900 text-sm mb-2">Modern Stack</h4>
+                        <p class="text-xs text-indigo-700">Next.js 15, React 19, Tailwind CSS 4 for performance and
+                            premium UI.</p>
+                    </div>
+                    <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100">
+                        <h4 class="font-bold text-indigo-900 text-sm mb-2">Data Processing</h4>
+                        <p class="text-xs text-indigo-700">XLSX & JSZip for large-scale client-side data processing.</p>
+                    </div>
+                    <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100">
+                        <h4 class="font-bold text-indigo-900 text-sm mb-2">Visualization</h4>
+                        <p class="text-xs text-indigo-700">Recharts for in-depth budget analytical dashboards.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Impact -->
+            <section>
+                <h2 class="text-xl font-bold text-indigo-900 mb-6 flex items-center gap-2">
+                    <span
+                        class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">05</span>
+                    Business Impact
+                </h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="p-4 border border-gray-100 rounded-2xl text-center">
+                        <p class="text-2xl font-black text-indigo-600 mb-1">95%</p>
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">Time Saved</p>
+                    </div>
+                    <div class="p-4 border border-gray-100 rounded-2xl text-center">
+                        <p class="text-2xl font-black text-indigo-600 mb-1">100%</p>
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">Accuracy</p>
+                    </div>
+                    <div class="p-4 border border-gray-100 rounded-2xl text-center text-indigo-600">
+                        <p class="font-bold text-xs uppercase leading-tight mt-1">Strategic Decision</p>
+                    </div>
+                    <div class="p-4 border border-gray-100 rounded-2xl text-center text-indigo-600">
+                        <p class="font-bold text-xs uppercase leading-tight mt-1">Premium UX/UI</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer for print -->
+            <footer
+                class="pt-8 border-t border-gray-100 flex justify-between items-center text-gray-400 text-[10px] font-medium uppercase tracking-widest">
+                <span>Excel Top-up Splitter Case Study</span>
+                <span>pham dong dien &copy; 2026</span>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Floating Print Button -->
+    <div class="fixed bottom-8 right-8 no-print">
+        <button onclick="window.print()"
+            class="bg-indigo-600 text-white px-6 py-3 rounded-full shadow-2xl hover:bg-indigo-700 transition-all font-bold flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9V2h12v7"></path>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            Save as PDF
+        </button>
+    </div>
+</body>
+
+</html>
