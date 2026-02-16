@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Excel Top-up Splitter 🚀
 
-## Getting Started
+Công cụ hỗ trợ tách và xử lý dữ liệu Top-up từ file Excel xuất ra từ các nền tảng khảo sát (như Alchemer). 
 
-First, run the development server:
+## 🌟 Tính năng chính
+- **Xử lý tự động**: Tự động phân loại respondents theo nguồn (Panel IFM, Zalo Group, Referrers, Vendors).
+- **Tính toán chi phí**: Ước tính chi phí survey, tiền thưởng (evoucher) và chi phí cho các đối tác cung cấp mẫu (Vendors) theo tỉ giá hối đoái thực tế.
+- **Xuất dữ liệu thông minh**: 
+  - Tự động tách thành các file Excel riêng biệt theo từng Vendor.
+  - Tạo file CSV Merged cho hệ thống GotIt.
+  - Tạo file Text/XLSX cho các nền tảng đặc thù như Fulcrum.
+- **Hệ thống Dashboard**: Giao diện trực quan với các biểu đồ phân bổ mẫu và biểu đồ cơ cấu ngân sách.
+- **Lịch sử dự án**: Lưu trữ cấu hình và kết quả của các dự án trước đó vào bộ nhớ trình duyệt.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 📊 Live Interactive Demo
+Bạn có thể xem trước giao diện và tính năng của ứng dụng với dữ liệu mẫu (Dummy Data) tại:
+**`[Link-Vercel-Của-Bạn]/demo`**
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+*(Lưu ý: Trang demo sử dụng dữ liệu tĩnh để minh họa khả năng báo cáo và UI/UX của hệ thống)*
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠 Công nghệ sử dụng
+- **Frontend**: Next.js 15+, React 19, Tailwind CSS 4.
+- **Thư viện chính**:
+  - `xlsx`: Xử lý đọc/ghi file Excel.
+  - `jszip`: Nén các file đã xử lý thành gói ZIP.
+  - `recharts`: Hiển thị biểu đồ thống kê.
+  - `lucide-react`: Hệ thống icon tối giản.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Hướng dẫn cài đặt (Local Development)
 
-## Learn More
+1. **Clone repository**:
+   ```bash
+   git clone https://github.com/phamdongdien19/Excel-Top-up-Splitter_demo.git
+   cd Excel-Top-up-Splitter_demo
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Cài đặt dependencies**:
+   ```bash
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Chạy môi trường phát triển**:
+   ```bash
+   npm run dev
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. **Mở trình duyệt**:
+   Truy cập `http://localhost:3000` để xem ứng dụng gốc, hoặc `http://localhost:3000/demo` để xem bản demo.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+© 2026 - Phát triển bởi **Phạm Đông Điền**
